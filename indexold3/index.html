@@ -303,30 +303,8 @@
 
 <div class="container py-4">
     <h2 class="mb-4 text-center">SPD TURF</h2>
+
     <!-- Messages from admin -->
-    <!-- MARQUEE ANNOUNCEMENT -->
-    <div class="marquee-wrapper bg-dark text-white my-2">
-      <div id="marquee-text" class="marquee"></div>
-    </div>
-    <style>
-      .marquee-wrapper {
-        overflow: hidden;
-        white-space: nowrap;
-      }
-
-      .marquee {
-        display: inline-block;
-        padding-left: 100%;
-        animation: scroll 15s linear infinite;
-      }
-
-      @keyframes scroll {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-100%); }
-      }
-    </style>
-
-    <!-- Messages from admin,dismissable alerts -->
     <div id="announcementContainer"></div>
 
     <div class="mb-3 text-center d-flex justify-content-center align-items-center gap-3">
@@ -757,54 +735,40 @@ function updateDateLabel(dateStr) {
 //announcement messages from admin starts here
 async function loadAnnouncements() {
 
-  const res = await fetch("/api/announcements");
-  const data = await res.json();
+  const res =
+    await fetch(
+      "/api/announcements"
+    );
 
-  // STEP 1: only active announcements
-  const active = data.filter(a => a.active);
+  const announcements =
+    await res.json();
 
-  // STEP 2: split properly
-  const marqueeData = active.filter(a => a.show_in_marquee);
-  const alertData = active.filter(a => a.show_as_alert);
+  const container =
+    document.getElementById(
+      "announcementContainer"
+    );
 
-  // STEP 3: render separately
-  renderMarquee(marqueeData);
-  renderAlerts(alertData);
-}
-// 
-function renderMarquee(data) {
+  if (!announcements.length) {
 
-  const container = document.querySelector(".marquee-wrapper");
-  const marquee = document.getElementById("marquee-text");
-
-  const text = data
-    .map(a => `⚡ ${a.title}: ${a.message}`)
-    .join("   |   ");
-
-  if (!text) {
-    container.style.display = "none";
-    return;
-  }
-
-  marquee.textContent = text;
-  container.style.display = "block";
-}
-// 
-function renderAlerts(data) {
-
-  const container = document.getElementById("announcementContainer");
-
-  if (!data.length) {
     container.innerHTML = "";
+
     return;
   }
 
-  container.innerHTML = data.map(a => `
+container.innerHTML =
+  announcements.map(a => `
     <div class="alert alert-info alert-dismissible fade show shadow-sm mb-2">
+
       <strong>📢 ${a.title}</strong><br>
+
       ${a.message}
 
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert">
+      </button>
+
     </div>
   `).join("");
 }
@@ -1010,27 +974,6 @@ document.getElementById('next-day').addEventListener('click', () => {
       container.innerHTML += courtHTML;
     });
   }
-
-
-//message from admin alerts 
-function renderAlerts(data) {
-
-  const container = document.getElementById("announcementContainer");
-
-  if (!data.length) {
-    container.innerHTML = "";
-    return;
-  }
-
-  container.innerHTML = data.map(a => `
-    <div class="alert alert-warning alert-dismissible fade show shadow-sm mb-2">
-      <strong>📢 ${a.title}</strong><br>
-      ${a.message}
-
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    </div>
-  `).join("");
-}
 </script>
 
 <!-- Toast Container -->
